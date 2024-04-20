@@ -5,46 +5,49 @@ input.onGesture(Gesture.ScreenDown, function () {
     serialmp3.runMp3Command(Mp3Command.PAUSE)
 })
 input.onButtonEvent(Button.A, input.buttonEventClick(), function () {
-    basic.setLedColor(0x00ff00)
     Titel += -1
     fTitelName(Ordner, Titel)
 })
 function fTitelName (pOrdner: number, pTitel: number) {
+    lcd16x2rgb.writeText(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E), 1, 0, 15, lcd16x2rgb.lcd16x2_text("Ordner" + pOrdner + " Titel" + pTitel))
     if (pOrdner == 1 && lcd16x2rgb.between(pTitel, 0, 15)) {
-        lcd16x2rgb.writeText(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E), 1, 0, 15, Ordner1()[pTitel])
+        lcd16x2rgb.writeText(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E), 0, 0, 15, Ordner1()[pTitel])
     } else if (pOrdner == 3 && lcd16x2rgb.between(pTitel, 0, 12)) {
-        lcd16x2rgb.writeText(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E), 1, 0, 15, Ordner3Tabaluga()[pTitel])
+        lcd16x2rgb.writeText(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E), 0, 0, 15, Ordner3Tabaluga()[pTitel])
     } else {
-        lcd16x2rgb.writeText(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E), 1, 0, 15, lcd16x2rgb.lcd16x2_text("Ordner" + pOrdner + " Titel" + pTitel))
+        lcd16x2rgb.writeText(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E), 0, 0, 15, lcd16x2rgb.lcd16x2_text("keine Daten"))
     }
 }
 input.onGesture(Gesture.TiltLeft, function () {
     serialmp3.runMp3Command(Mp3Command.PLAY_PREVIOUS_TRACK)
 })
 input.onButtonEvent(Button.AB, input.buttonEventClick(), function () {
-    if (Titel == 0) {
+    if (Titel < 1) {
+        Titel = 1
         serialmp3.playMp3Folder(Ordner, Mp3Repeat.No)
     } else {
         serialmp3.playMp3TrackFromFolder(Titel, Ordner, Mp3Repeat.No)
     }
 })
+serialmp3.onMp3TrackCompleted(function () {
+    lcd16x2rgb.comment("spielt den nächsten Titel, der im Display angezeigt wird")
+    if (serialmp3.mp3Folder() != Ordner || serialmp3.mp3Track() != Titel) {
+        serialmp3.playMp3TrackFromFolder(Titel, Ordner, Mp3Repeat.No)
+    }
+})
 input.onButtonEvent(Button.B, input.buttonEventClick(), function () {
-    basic.setLedColor(0x00ff00)
     Titel += 1
     fTitelName(Ordner, Titel)
 })
 input.onButtonEvent(Button.A, input.buttonEventValue(ButtonEvent.Hold), function () {
-    basic.setLedColor(0xff0000)
     Ordner += -1
     fTitelName(Ordner, Titel)
 })
 input.onButtonEvent(Button.B, input.buttonEventValue(ButtonEvent.Hold), function () {
-    basic.setLedColor(0xff0000)
     Ordner += 1
     fTitelName(Ordner, Titel)
 })
 serialmp3.onMp3TrackStarted(function () {
-    basic.setLedColor(0x0000ff)
     fTitelName(serialmp3.mp3Folder(), serialmp3.mp3Track())
 })
 input.onGesture(Gesture.ScreenUp, function () {
@@ -90,9 +93,6 @@ function Ordner3Tabaluga () {
 let Titel = 0
 let Ordner = 0
 lcd16x2rgb.initLCD(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E))
-lcd16x2rgb.writeText(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E), 0, 0, 2, lcd16x2rgb.lcd16x2_text("CO²"))
-lcd16x2rgb.writeText(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E), 0, 8, 10, lcd16x2rgb.lcd16x2_text("ppm"))
-lcd16x2rgb.writeText(lcd16x2rgb.lcd16x2_eADDR(lcd16x2rgb.eADDR_LCD.LCD_16x2_x3E), 0, 14, 15, lcd16x2rgb.lcd16x2_text("°C"))
 serialmp3.connectSerialMp3(DigitalPin.C16, DigitalPin.C17)
 Ordner = serialmp3.mp3Folder()
 Titel = serialmp3.mp3Track()
@@ -101,6 +101,3 @@ lcd16x2rgb.comment("mp3-lcd-62")
 lcd16x2rgb.comment("2 Erweiterungen:")
 lcd16x2rgb.comment("mkleinsb/pxt-serialmp3")
 lcd16x2rgb.comment("calliope-net/lcd-16x2")
-loops.everyInterval(5000, function () {
-    fTitelName(serialmp3.mp3Folder(), serialmp3.mp3Track())
-})
