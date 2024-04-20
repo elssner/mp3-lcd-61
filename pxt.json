@@ -1,12 +1,12 @@
 {
-    "name": "mp3-lcd-62",
+    "name": "mp3-lcd-61",
     "version": "0.0.1",
     "description": "",
     "dependencies": {
         "core": "*",
-        "v2": "*",
         "lcd-16x2": "github:calliope-net/lcd-16x2#v2.0.6",
-        "pxt-serialmp3": "github:mkleinsb/pxt-serialmp3#v0.0.8"
+        "pxt-serialmp3": "github:mkleinsb/pxt-serialmp3#v0.0.8",
+        "v1": "*"
     },
     "files": [
         "main.blocks",
